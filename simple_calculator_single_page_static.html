@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Calculator App</title>
+  <style>
+    :root{
+      --bg:#0f1724; --panel:#0b1220; --muted:#94a3b8; --accent:#38bdf8; --btn:#111827; --glass: rgba(255,255,255,0.04);
+      --radius:14px; --shadow: 0 8px 24px rgba(2,6,23,0.6);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    body{display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#071024 0%, #081827 100%);color:#e6eef6;padding:32px}
+    .container{width:360px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:18px;padding:20px;box-shadow:var(--shadow)}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    header h1{font-size:18px;margin:0;font-weight:600}
+    header p{margin:0;color:var(--muted);font-size:12px}
+
+    .display{background:var(--panel);border-radius:12px;padding:14px 12px;margin-bottom:14px;min-height:82px;display:flex;flex-direction:column;justify-content:space-between}
+    .calc-expression{color:var(--muted);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .calc-result{font-size:28px;font-weight:600;text-align:right;word-break:break-all}
+
+    .pad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    button{border:0;padding:16px;border-radius:10px;font-size:16px;background:var(--btn);color:inherit;cursor:pointer;box-shadow:0 2px 8px rgba(2,6,23,0.6)}
+    button.operation{background:linear-gradient(180deg,#14263a,#0f2230);color:var(--accent)}
+    button.equal{grid-column:span 2;background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#042028;font-weight:700}
+    button.double{grid-column:span 2}
+    button.secondary{background:var(--glass);color:var(--muted)}
+
+    .small{font-size:13px;padding:10px}
+    .history{margin-top:12px;background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;max-height:120px;overflow:auto}
+    .history h3{margin:0 0 8px 0;font-size:13px}
+    .history-item{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.02)}
+
+    /* responsive */
+    @media (max-width:420px){.container{width:100%;padding:16px;border-radius:12px}}
+  </style>
+</head>
+<body>
+  <main class="container" role="application" aria-label="Calculator">
+    <header>
+      <div>
+        <h1>My Calculator App</h1>
+        <p>Simple, keyboard-friendly, single-file</p>
+      </div>
+      <div style="text-align:right">
+        <button id="themeBtn" class="small secondary" aria-pressed="false">Toggle Theme</button>
+      </div>
+    </header>
+
+    <section class="display" aria-live="polite">
+      <div class="calc-expression" id="expression" aria-hidden="false">0</div>
+      <div class="calc-result" id="result">0</div>
+    </section>
+
+    <section class="pad" role="group" aria-label="Calculator keypad">
+      <button class="secondary" data-key="Escape">C</button>
+      <button class="secondary" data-key="Backspace">←</button>
+      <button class="secondary" data-key="%">%</button>
+      <button class="operation" data-key="/">÷</button>
+
+      <button data-key="7">7</button>
+      <button data-key="8">8</button>
+      <button data-key="9">9</button>
+      <button class="operation" data-key="*">×</button>
+
+      <button data-key="4">4</button>
+      <button data-key="5">5</button>
+      <button data-key="6">6</button>
+      <button class="operation" data-key="-">−</button>
+
+      <button data-key="1">1</button>
+      <button data-key="2">2</button>
+      <button data-key="3">3</button>
+      <button class="operation" data-key="+">+</button>
+
+      <button data-key="0" class="double">0</button>
+      <button data-key=".">.</button>
+      <button class="equal" data-key="Enter">=</button>
+    </section>
+
+    <section class="history" id="history" aria-label="History (last results)">
+      <h3>History</h3>
+      <div id="historyList" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      const exprEl = document.getElementById('expression');
+      const resEl = document.getElementById('result');
+      const historyList = document.getElementById('historyList');
+      const themeBtn = document.getElementById('themeBtn');
+
+      let expression = '';
+      let lastResult = null;
+      const history = [];
+
+      function sanitizeForDisplay(s){
+        return String(s).replace(/\*/g,'×').replace(/\//g,'÷');
+      }
+
+      function updateDisplay(){
+        exprEl.textContent = expression || '0';
+        resEl.textContent = lastResult === null ? '0' : lastResult;
+      }
+
+      function pushHistory(expr,res){
+        history.unshift({expr,res});
+        if(history.length>8) history.pop();
+        renderHistory();
+      }
+
+      function renderHistory(){
+        historyList.innerHTML = history.map(h=>
+          `<div class="history-item"><span>${h.expr}</span><strong>${h.res}</strong></div>`
+        ).join('');
+      }
+
+      function clear(){ expression=''; lastResult=null; updateDisplay(); }
+      function backspace(){ expression = expression.slice(0,-1); updateDisplay(); }
+
+      function calculate(){
+        if(!expression) return;
+        try{
+          // Replace special percent handling: e.g. 50% -> (50/100)
+          const transformed = expression.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
+          // Evaluate safely using Function (not recommended for untrusted code) — OK for local static app
+          const res = Function('return ('+transformed.replace(/×/g,'*').replace(/÷/g,'/')+')')();
+          if(typeof res === 'number' && isFinite(res)){
+            lastResult = Math.round((res + Number.EPSILON) * 1e12)/1e12; // trim float noise
+            pushHistory(sanitizeForDisplay(expression), lastResult);
+            expression = String(lastResult);
+          } else {
+            lastResult = 'Error';
+          }
+        }catch(e){ lastResult = 'Error'; }
+        updateDisplay();
+      }
+
+      // button clicks
+      document.querySelectorAll('[data-key]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const k = btn.getAttribute('data-key');
+          handleKey(k);
+        });
+      });
+
+      function handleKey(k){
+        if(k === 'Escape') { clear(); return; }
+        if(k === 'Backspace') { backspace(); return; }
+        if(k === 'Enter') { calculate(); return; }
+
+        if(k === '%'){
+          // append percent to previous number
+          expression += '%'; updateDisplay(); return;
+        }
+
+        if(/^[0-9.]$/.test(k)){
+          // prevent multiple decimals in current number
+          const parts = expression.split(/[^0-9.]/);
+          const cur = parts[parts.length-1];
+          if(k === '.' && cur.includes('.')) return;
+          expression += k; updateDisplay(); return;
+        }
+
+        if(/^[\+\-\*\/]$/.test(k)){
+          // avoid consecutive operators
+          if(!expression) { if(k === '-') { expression = '-'; updateDisplay(); } return; }
+          if(/[\+\-\*\/]$/.test(expression)){
+            expression = expression.slice(0,-1) + k; updateDisplay(); return;
+          }
+          expression += k; updateDisplay(); return;
+        }
+      }
+
+      // keyboard support
+      window.addEventListener('keydown', (ev)=>{
+        const key = ev.key;
+        if(key === 'Enter' || key === '='){ ev.preventDefault(); handleKey('Enter'); return; }
+        if(key === 'Backspace'){ ev.preventDefault(); handleKey('Backspace'); return; }
+        if(key === 'Escape'){ handleKey('Escape'); return; }
+
+        if(/^\d|\.|\+|\-|\*|\/|%$/.test(key)){
+          handleKey(key); ev.preventDefault(); return;
+        }
+      });
+
+      // theme toggle (simple)
+      themeBtn.addEventListener('click', ()=>{
+        const body = document.body;
+        const pressed = themeBtn.getAttribute('aria-pressed') === 'true';
+        if(!pressed){
+          // light theme
+          body.style.background = 'linear-gradient(180deg,#ffffff,#f3f4f6)';
+          body.style.color = '#0b1220';
+          themeBtn.setAttribute('aria-pressed','true');
+        } else {
+          body.style.background = 'linear-gradient(180deg,#071024,#081827)';
+          body.style.color = '#e6eef6';
+          themeBtn.setAttribute('aria-pressed','false');
+        }
+      });
+
+      // init
+      updateDisplay();
+    })();
+  </script>
+</body>
+</html>
