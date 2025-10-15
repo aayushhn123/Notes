@@ -40,9 +40,10 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        float verticalInput = Input.GetAxisRaw("Vertical"); // Get W/S or Up/Down input (-1 for back, 1 for forward)
-        Vector3 movement = new Vector3(0, 0, verticalInput) * moveSpeed * Time.deltaTime; // Frame-rate independent movement
-        transform.Translate(movement, Space.Self); // Move forward/backward relative to cube's orientation
+        float horizontalInput = Input.GetAxisRaw("Horizontal"); // Get A/D input (-1 for left, 1 for right)
+        float verticalInput = Input.GetAxisRaw("Vertical"); // Get W/S input (-1 for back, 1 for forward)
+        Vector3 movement = new Vector3(horizontalInput, 0, verticalInput) * moveSpeed * Time.deltaTime; // Frame-rate independent movement
+        transform.Translate(movement, Space.Self); // Move in all directions relative to cube's orientation
 
         if (Input.GetKeyDown(KeyCode.Escape)) // Check if ESC is pressed
         {
