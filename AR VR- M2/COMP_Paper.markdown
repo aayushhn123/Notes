@@ -11,17 +11,19 @@
 
 ## Set A Solutions
 
-### Q1a: Player Cube Moving Forward and Backward
+### Q1a: Player Cube Moving with WASD
 **CO-4, SO-2, B.L.-3, Marks: [1*2]**
 
 **Steps:**
 1. Create a new 3D project named "ARVRTest_SetA_Q1a" in Unity Hub.
-2. Add a Plane named "Ground", set Position to (0, 0, 0), Scale to (10, 1, 10), add Box Collider.
-3. Add a Cube named "Player", set Position to (0, 0.5, 0), add Rigidbody and Box Collider.
-4. Create a script named "PlayerMovement" in a "Scripts" folder.
-5. Attach "PlayerMovement" to the Player GameObject.
-6. Test with W/S for movement, ESC to stop in Editor or quit in build.
-7. Build via File > Build Settings > Add Open Scenes > Build.
+2. In the Hierarchy, right-click > 3D Object > Plane, name it "Ground", set Position to (0, 0, 0), Scale to (10, 1, 10), and add a Box Collider.
+3. Right-click in Hierarchy > 3D Object > Cube, name it "Player", set Position to (0, 0.5, 0), and add a Rigidbody and Box Collider.
+4. In the Project window, create a folder named "Scripts". Right-click > Create > C# Script, name it "PlayerMovement".
+5. Open "PlayerMovement.cs", replace its content with the code below, and save.
+6. Drag the "PlayerMovement" script onto the "Player" GameObject in the Hierarchy.
+7. In the Inspector, ensure the "Player" GameObject has the "Player" tag (add it via Tag dropdown > Add Tag > Create "Player" if missing).
+8. Press Play in the Unity Editor, test WASD keys for movement (W: forward, A: left, S: backward, D: right), and ESC to stop in Editor or quit in build.
+9. To test the build, go to File > Build Settings, add the current scene, and build the project.
 
 **Code:**
 ```csharp
@@ -40,9 +42,9 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        float horizontalInput = Input.GetAxisRaw("Horizontal"); // Get A/D input (-1 for left, 1 for right)
-        float verticalInput = Input.GetAxisRaw("Vertical"); // Get W/S input (-1 for back, 1 for forward)
-        Vector3 movement = new Vector3(horizontalInput, 0, verticalInput) * moveSpeed * Time.deltaTime; // Frame-rate independent movement
+        float horizontalInput = Input.GetAxisRaw("Horizontal"); // A/D for left/right (-1 for left, 1 for right)
+        float verticalInput = Input.GetAxisRaw("Vertical"); // W/S for forward/backward (-1 for back, 1 for forward)
+        Vector3 movement = new Vector3(horizontalInput, 0, verticalInput) * moveSpeed * Time.deltaTime; // Frame-rate independent
         transform.Translate(movement, Space.Self); // Move in all directions relative to cube's orientation
 
         if (Input.GetKeyDown(KeyCode.Escape)) // Check if ESC is pressed
@@ -58,20 +60,23 @@ public class PlayerMovement : MonoBehaviour
 ```
 
 **Submission Requirements:**
-- Script screenshot showing movement + ESC logic.
-- Hierarchy screenshot showing proper naming (e.g., "Player", "Ground").
-- Game window screenshot showing cube movement.
+- Script screenshot showing WASD movement and ESC logic.
+- Hierarchy screenshot showing "Player" and "Ground" with proper naming.
+- Game window screenshot showing cube movement with WASD.
 
 ### Q1b: TextMeshPro Element Displaying "Ready to Move"
 **CO-4, SO-3, B.L.-3, Marks: [1*2]**
 
 **Steps:**
-1. In Hierarchy, right-click > UI > Canvas, name it "UICanvas".
-2. Add Text - TextMeshPro under UICanvas, name it "MovementText", set Position to (0, 2, 0) relative to Player.
-3. In Inspector, set Text to "Ready to Move", Font Size to 24, Alignment to Center.
-4. Create a script named "TextDisplay" in the Scripts folder.
-5. Attach "TextDisplay" to UICanvas or MovementText.
-6. Test to ensure text appears above Player.
+1. In the Hierarchy, right-click > UI > Canvas, name it "UICanvas".
+2. With "UICanvas" selected, right-click > UI > Text - TextMeshPro, name it "MovementText", set its Rect Transform Position to (0, 200, 0) in the Canvas (adjust as needed to appear above Player).
+3. In the Inspector, set "MovementText" Text to "Ready to Move", Font Size to 24, and Alignment to Center.
+4. Ensure TextMeshPro is imported (Window > TextMeshPro > Import TMP Essential Resources if not done).
+5. In the Project window, create a "Scripts" folder if not exists, right-click > Create > C# Script, name it "TextDisplay".
+6. Open "TextDisplay.cs", replace its content with the code below, and save.
+7. Drag the "TextDisplay" script onto the "UICanvas" GameObject.
+8. In the Inspector, drag the "MovementText" GameObject to the "Text Display" field of the "TextDisplay" component.
+9. Press Play, ensure "Ready to Move" appears above the Player.
 
 **Code:**
 ```csharp
@@ -93,20 +98,23 @@ public class TextDisplay : MonoBehaviour
 ```
 
 **Submission Requirements:**
-- Hierarchy screenshot showing TMP above player.
-- Game window screenshot showing visible text.
-- Inspector screenshot showing TMP properties.
+- Hierarchy screenshot showing "MovementText" under "UICanvas" and linked to Player.
+- Game window screenshot showing "Ready to Move" text visible.
+- Inspector screenshot showing "MovementText" properties.
 
 ### Q2: Obstacle Disappears on Collision
 **CO-3, SO-6, B.L.-5, Marks: [3]**
 
 **Steps:**
-1. Add a Cube named "Obstacle", set Position to (2, 0.5, 0), add Box Collider.
-2. Attach Rigidbody to Obstacle, uncheck "Use Gravity" if static.
-3. Add TextMeshPro under UICanvas, name it "StatusText", position at top-center.
-4. Create a script named "ObstacleCollision".
-5. Attach "ObstacleCollision" to Obstacle, assign "StatusText".
-6. Test by pushing Player into Obstacle.
+1. In the Hierarchy, right-click > 3D Object > Cube, name it "Obstacle", set Position to (2, 0.5, 0), and add a Box Collider.
+2. Add a Rigidbody to "Obstacle", uncheck "Use Gravity" to keep it static.
+3. In the Hierarchy, ensure "UICanvas" exists (from Q1b), right-click under it > UI > Text - TextMeshPro, name it "StatusText", set Rect Transform Position to (0, 400, 0) (top-center), and set Text to empty, Font Size to 24, Alignment to Center.
+4. In the Project window, in "Scripts" folder, right-click > Create > C# Script, name it "ObstacleCollision".
+5. Open "ObstacleCollision.cs", replace its content with the code below, and save.
+6. Drag the "ObstacleCollision" script onto the "Obstacle" GameObject.
+7. In the Inspector, drag the "StatusText" GameObject to the "Status Text" field of the "ObstacleCollision" component.
+8. Ensure "Player" has the "Player" tag (from Q1a).
+9. Press Play, move "Player" to collide with "Obstacle", verify it disappears and "Obstacle Cleared!" appears.
 
 **Code:**
 ```csharp
@@ -121,7 +129,7 @@ public class ObstacleCollision : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player")) // Check if Player collides
         {
-            gameObject.SetActive(false); // Disable the obstacle (makes it disappear)
+            gameObject.SetActive(false); // Disable the obstacle
             if (statusText != null)
             {
                 statusText.text = "Obstacle Cleared!"; // Update TMP text
@@ -133,20 +141,24 @@ public class ObstacleCollision : MonoBehaviour
 
 **Submission Requirements:**
 - Script screenshot showing collision logic.
-- Inspector screenshot of obstacle.
-- Game window screenshot before and after collision.
-- Hierarchy screenshot with clean naming.
+- Inspector screenshot of "Obstacle" with Rigidbody and script.
+- Game window screenshots before and after collision.
+- Hierarchy screenshot showing "Obstacle" and "StatusText".
 
 ### Q3: Trigger Zone with Falling Cube
 **CO-3, SO-1, B.L.-4, Marks: [3]**
 
 **Steps:**
-1. Create an Empty named "TriggerZone", add child Cube "TriggerArea", set Position to (0, 0, 5), scale (2, 1, 2), check "Is Trigger".
-2. Add a Cube named "FallingCube", set Position to (0, 5, 5), add Rigidbody (uncheck initially).
-3. Add TextMeshPro to UICanvas, name it "GravityText", position at top-center.
-4. Create a script named "TriggerGravity".
-5. Attach "TriggerGravity" to TriggerZone, assign "FallingCube" and "GravityText".
-6. Test by moving Player into TriggerArea.
+1. In the Hierarchy, right-click > Create Empty, name it "TriggerZone", set Position to (0, 0, 5).
+2. Under "TriggerZone", right-click > 3D Object > Cube, name it "TriggerArea", set Scale to (2, 1, 2), add a Box Collider, and check "Is Trigger".
+3. Right-click in Hierarchy > 3D Object > Cube, name it "FallingCube", set Position to (0, 5, 5), and add a Rigidbody (uncheck "Use Gravity" initially).
+4. Ensure "UICanvas" exists, right-click under it > UI > Text - TextMeshPro, name it "GravityText", set Rect Transform Position to (0, 400, 0), and set Text to empty, Font Size to 24, Alignment to Center.
+5. In the "Scripts" folder, right-click > Create > C# Script, name it "TriggerGravity".
+6. Open "TriggerGravity.cs", replace its content with the code below, and save.
+7. Drag the "TriggerGravity" script onto the "TriggerArea" GameObject (not "TriggerZone").
+8. In the Inspector, drag "FallingCube" to the "Falling Cube" field and "GravityText" to the "Gravity Text" field of the "TriggerGravity" component.
+9. Ensure "Player" has the "Player" tag.
+10. Press Play, move "Player" into "TriggerArea", verify "FallingCube" falls and "Gravity Enabled" appears.
 
 **Code:**
 ```csharp
@@ -180,20 +192,23 @@ public class TriggerGravity : MonoBehaviour
 ```
 
 **Submission Requirements:**
-- Script screenshot showing trigger handling.
-- Hierarchy showing trigger zone and affected object.
-- Game window showing cube falling and TMP text.
+- Script screenshot showing trigger logic.
+- Hierarchy screenshot showing "TriggerZone" with "TriggerArea" and "FallingCube".
+- Game window screenshot showing "FallingCube" falling and "GravityText".
 
 ### Q4: Rotating Obstacle that Stops on Collision
 **CO-4, SO-2, B.L.-6, Marks: [3]**
 
 **Steps:**
-1. Add a Cube named "RotatingObstacle", set Position to (2, 0.5, 2).
-2. Attach Rigidbody, uncheck "Use Gravity".
-3. Add TextMeshPro to UICanvas, name it "StopText", position at top-center.
-4. Create a script named "RotatingObstacle".
-5. Attach "RotatingObstacle" to the obstacle, assign "StopText".
-6. Test to ensure rotation stops on collision.
+1. In the Hierarchy, right-click > 3D Object > Cube, name it "RotatingObstacle", set Position to (2, 0.5, 2), and add a Box Collider.
+2. Add a Rigidbody to "RotatingObstacle", uncheck "Use Gravity".
+3. Ensure "UICanvas" exists, right-click under it > UI > Text - TextMeshPro, name it "StopText", set Rect Transform Position to (0, 400, 0), and set Text to empty, Font Size to 24, Alignment to Center.
+4. In the "Scripts" folder, right-click > Create > C# Script, name it "RotatingObstacle".
+5. Open "RotatingObstacle.cs", replace its content with the code below, and save.
+6. Drag the "RotatingObstacle" script onto the "RotatingObstacle" GameObject.
+7. In the Inspector, drag the "StopText" GameObject to the "Stop Text" field of the "RotatingObstacle" component.
+8. Ensure "Player" has the "Player" tag.
+9. Press Play, verify "RotatingObstacle" rotates, stops on collision with "Player", and "Stopped" appears.
 
 **Code:**
 ```csharp
@@ -230,8 +245,8 @@ public class RotatingObstacle : MonoBehaviour
 
 **Submission Requirements:**
 - Script screenshot showing rotation and stop logic.
-- Inspector screenshot of rotating object.
-- Game window (before and after collision).
+- Inspector screenshot of "RotatingObstacle" with Rigidbody and script.
+- Game window screenshots before and after collision.
 
 ## Test-I SET-B Solutions
 
@@ -239,13 +254,15 @@ public class RotatingObstacle : MonoBehaviour
 **CO-4, SO-6, B.L.-3, Marks: [1*2]**
 
 **Steps:**
-1. Create a new 3D project named "ARVRTest_SetB_Q1a".
-2. Add a Plane named "Ground", Scale (10, 1, 10).
-3. Add a Cube named "Player", Position (0, 0.5, 0), add Rigidbody and Box Collider.
-4. Create a script named "PlayerSideMovement".
-5. Attach "PlayerSideMovement" to Player.
-6. Test with A/D for movement, ESC to stop/quit.
-7. Build via File > Build Settings.
+1. Create a new 3D project named "ARVRTest_SetB_Q1a" in Unity Hub.
+2. In the Hierarchy, right-click > 3D Object > Plane, name it "Ground", set Scale to (10, 1, 10), and add a Box Collider.
+3. Right-click > 3D Object > Cube, name it "Player", set Position to (0, 0.5, 0), and add a Rigidbody and Box Collider.
+4. In the Project window, create a "Scripts" folder, right-click > Create > C# Script, name it "PlayerSideMovement".
+5. Open "PlayerSideMovement.cs", replace its content with the code below, and save.
+6. Drag the "PlayerSideMovement" script onto the "Player" GameObject.
+7. In the Inspector, add the "Player" tag to the "Player" GameObject if missing.
+8. Press Play, test A/D keys for left/right movement, and ESC to stop in Editor or quit in build.
+9. Build via File > Build Settings > Add Open Scenes > Build.
 
 **Code:**
 ```csharp
@@ -264,7 +281,7 @@ public class PlayerSideMovement : MonoBehaviour
 
     void Update()
     {
-        float horizontalInput = Input.GetAxisRaw("Horizontal"); // Get A/D or Left/Right input
+        float horizontalInput = Input.GetAxisRaw("Horizontal"); // A/D for left/right
         Vector3 movement = new Vector3(horizontalInput, 0, 0) * moveSpeed * Time.deltaTime; // Frame-rate independent
         transform.Translate(movement, Space.Self); // Move left/right
 
@@ -281,19 +298,23 @@ public class PlayerSideMovement : MonoBehaviour
 ```
 
 **Submission Requirements:**
-- Screenshot of script logic showing motion and ESC handling.
+- Script screenshot showing A/D movement and ESC logic.
 - Game window screenshot showing cube movement.
-- Hierarchy screenshot showing clean naming (e.g., "Player", "Ground").
+- Hierarchy screenshot showing "Player" and "Ground".
 
 ### Q1b: Display Player’s Position
 **CO-4, SO-2, B.L.-3, Marks: [1*2]**
 
 **Steps:**
-1. Create "UICanvas" in Hierarchy.
-2. Add "PositionText" as child of Player, set Position to (0, 2, 0).
-3. Create a script named "PositionDisplay".
-4. Attach "PositionDisplay" to UICanvas or PositionText.
-5. Test by moving Player to see position updates.
+1. In the Hierarchy, right-click > UI > Canvas, name it "UICanvas".
+2. With "UICanvas" selected, right-click > UI > Text - TextMeshPro, name it "PositionText", set Rect Transform Position to (0, 200, 0) above Player.
+3. In the Inspector, set "PositionText" Text to empty, Font Size to 24, Alignment to Center.
+4. Ensure TextMeshPro is imported (Window > TextMeshPro > Import TMP Essential Resources if needed).
+5. In the "Scripts" folder, right-click > Create > C# Script, name it "PositionDisplay".
+6. Open "PositionDisplay.cs", replace its content with the code below, and save.
+7. Drag the "PositionDisplay" script onto the "UICanvas" GameObject.
+8. In the Inspector, drag the "Player" GameObject to the "Player" field and "PositionText" to the "Position Text" field of the "PositionDisplay" component.
+9. Press Play, move "Player" with A/D, verify position updates in real-time.
 
 **Code:**
 ```csharp
@@ -317,19 +338,22 @@ public class PositionDisplay : MonoBehaviour
 ```
 
 **Submission Requirements:**
-- Hierarchy screenshot showing TMP above player.
-- Game window screenshot showing text visible.
-- Inspector screenshot showing TMP component properties.
+- Hierarchy screenshot showing "PositionText" under "UICanvas".
+- Game window screenshot showing position text updating.
+- Inspector screenshot showing "PositionDisplay" component.
 
 ### Q2: Obstacle Changes Color on Collision
 **CO-3, SO-6, B.L.-5, Marks: [3]**
 
 **Steps:**
-1. Add a Cube named "ColorObstacle", Position (2, 0.5, 0).
-2. Add TextMeshPro named "CollisionText" on UICanvas.
-3. Create a script named "ColorChangeCollision".
-4. Attach "ColorChangeCollision" to ColorObstacle, assign "CollisionText".
-5. Test by colliding with Player.
+1. In the Hierarchy, right-click > 3D Object > Cube, name it "ColorObstacle", set Position to (2, 0.5, 0), and add a Box Collider.
+2. Ensure "UICanvas" exists, right-click under it > UI > Text - TextMeshPro, name it "CollisionText", set Rect Transform Position to (0, 400, 0), and set Text to empty, Font Size to 24, Alignment to Center.
+3. In the "Scripts" folder, right-click > Create > C# Script, name it "ColorChangeCollision".
+4. Open "ColorChangeCollision.cs", replace its content with the code below, and save.
+5. Drag the "ColorChangeCollision" script onto the "ColorObstacle" GameObject.
+6. In the Inspector, drag "CollisionText" to the "Collision Text" field of the "ColorChangeCollision" component.
+7. Ensure "Player" has the "Player" tag.
+8. Press Play, move "Player" to collide with "ColorObstacle", verify it turns red and "Collision Detected!" appears.
 
 **Code:**
 ```csharp
@@ -356,21 +380,25 @@ public class ColorChangeCollision : MonoBehaviour
 ```
 
 **Submission Requirements:**
-- Script showing collision logic.
-- Inspector of obstacle material.
-- Game window before & after collision.
-- Hierarchy showing clean naming.
+- Script screenshot showing collision logic.
+- Inspector screenshot of "ColorObstacle" material and script.
+- Game window screenshots before and after collision.
+- Hierarchy screenshot showing "ColorObstacle" and "CollisionText".
 
 ### Q3: Trigger Object Rotates Object on Collision
 **CO-3, SO-2, B.L.-5, Marks: [3]**
 
 **Steps:**
-1. Create an Empty named "RotationTrigger", add child Cube "TriggerArea", Position (0, 0, 5), scale (2, 1, 2), check "Is Trigger".
-2. Add a Cube named "RotatableObject", Position (0, 0.5, 5).
-3. Add TextMeshPro named "ZoneText" on UICanvas.
-4. Create a script named "RotationTrigger".
-5. Attach "RotationTrigger" to TriggerZone, assign "RotatableObject" and "ZoneText".
-6. Test by entering trigger.
+1. In the Hierarchy, right-click > Create Empty, name it "RotationTrigger", set Position to (0, 0, 5).
+2. Under "RotationTrigger", right-click > 3D Object > Cube, name it "TriggerArea", set Scale to (2, 1, 2), add a Box Collider, and check "Is Trigger".
+3. Right-click in Hierarchy > 3D Object > Cube, name it "RotatableObject", set Position to (0, 0.5, 5).
+4. Ensure "UICanvas" exists, right-click under it > UI > Text - TextMeshPro, name it "ZoneText", set Rect Transform Position to (0, 400, 0), and set Text to empty, Font Size to 24, Alignment to Center.
+5. In the "Scripts" folder, right-click > Create > C# Script, name it "RotationTrigger".
+6. Open "RotationTrigger.cs", replace its content with the code below, and save.
+7. Drag the "RotationTrigger" script onto the "TriggerArea" GameObject.
+8. In the Inspector, drag "RotatableObject" to the "Rotatable Object" field and "ZoneText" to the "Zone Text" field.
+9. Ensure "Player" has the "Player" tag.
+10. Press Play, move "Player" into "TriggerArea", verify "RotatableObject" rotates and "Active Zone" appears while inside.
 
 **Code:**
 ```csharp
@@ -419,20 +447,24 @@ public class RotationTrigger : MonoBehaviour
 ```
 
 **Submission Requirements:**
-- Script showing trigger logic + rotation control.
-- Hierarchy of trigger + platform.
-- Game window with TMP visible.
+- Script screenshot showing trigger and rotation logic.
+- Hierarchy screenshot showing "RotationTrigger" with "TriggerArea" and "RotatableObject".
+- Game window screenshot with "ZoneText" visible.
 
 ### Q4: Trigger Changes Color on Collision
 **CO-4, SO-2, B.L.-6, Marks: [3]**
 
 **Steps:**
-1. Create an Empty named "ColorTrigger", add child Cube "TriggerArea", Position (0, 0, 5), scale (2, 1, 2), check "Is Trigger".
-2. Add a Cube named "ColorObject", Position (0, 0.5, 5).
-3. Add TextMeshPro named "ZoneText" on UICanvas.
-4. Create a script named "ColorTrigger".
-5. Attach "ColorTrigger" to ColorTrigger, assign "ColorObject" and "ZoneText".
-6. Test by entering trigger.
+1. In the Hierarchy, right-click > Create Empty, name it "ColorTrigger", set Position to (0, 0, 5).
+2. Under "ColorTrigger", right-click > 3D Object > Cube, name it "TriggerArea", set Scale to (2, 1, 2), add a Box Collider, and check "Is Trigger".
+3. Right-click in Hierarchy > 3D Object > Cube, name it "ColorObject", set Position to (0, 0.5, 5).
+4. Ensure "UICanvas" exists, right-click under it > UI > Text - TextMeshPro, name it "ZoneText", set Rect Transform Position to (0, 400, 0), and set Text to empty, Font Size to 24, Alignment to Center.
+5. In the "Scripts" folder, right-click > Create > C# Script, name it "ColorTrigger".
+6. Open "ColorTrigger.cs", replace its content with the code below, and save.
+7. Drag the "ColorTrigger" script onto the "TriggerArea" GameObject.
+8. In the Inspector, drag "ColorObject" to the "Color Object" field and "ZoneText" to the "Zone Text" field.
+9. Ensure "Player" has the "Player" tag.
+10. Press Play, move "Player" into "TriggerArea", verify "ColorObject" turns blue while inside and reverts when exiting.
 
 **Code:**
 ```csharp
@@ -490,12 +522,12 @@ public class ColorTrigger : MonoBehaviour
 ```
 
 **Submission Requirements:**
-- Script showing sliding logic.
-- Hierarchy showing doors and trigger.
-- Game window (before and after door movement).
+- Script screenshot showing trigger and color logic.
+- Hierarchy screenshot showing "ColorTrigger" with "TriggerArea" and "ColorObject".
+- Game window screenshots before and after entering trigger.
 
 ## Notes
-- Ensure the "Player" tag is added to the Player GameObject in the Inspector (Tag dropdown > Add Tag > Create "Player").
+- Ensure the "Player" tag is added to the "Player" GameObject in the Inspector (Tag dropdown > Add Tag > Create "Player").
 - Import TextMeshPro via Window > TextMeshPro > Import TMP Essential Resources if not already done.
 - Build the project via File > Build Settings > Add Open Scenes > Build for ESC to work in .exe.
 - Use Unity 2021.3 LTS or newer for compatibility.
